@@ -18,6 +18,7 @@ export default async function EditPostPage({ params }: { params: { id: string } 
         `*[_type == "post" && _id == $id][0]{
             _id,
             title,
+            category,
             "body": body[0].children[0].text,
             "clerkId": author->clerkId
         }`,
@@ -66,6 +67,38 @@ export default async function EditPostPage({ params }: { params: { id: string } 
                                     defaultValue={post.title}
                                     className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200 outline-none"
                                 />
+                            </div>
+
+                            <div>
+                                <label
+                                    htmlFor="category"
+                                    className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+                                >
+                                    Category
+                                </label>
+                                <select
+                                    name="category"
+                                    id="category"
+                                    required
+                                    defaultValue={post.category}
+                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200 outline-none cursor-pointer appearance-none"
+                                >
+                                    <option value="tech">Technology</option>
+                                    <option value="lifestyle">Lifestyle</option>
+                                    <option value="education">Education</option>
+                                    <option value="news">News</option>
+                                    <option value="health">Health</option>
+                                    <option value="travel">Travel</option>
+                                    <option value="food">Food</option>
+                                    <option value="finance">Finance</option>
+                                    <option value="entertainment">Entertainment</option>
+                                    <option value="sports">Sports</option>
+                                    <option value="science">Science</option>
+                                    <option value="art">Art</option>
+                                    <option value="opinion">Opinion</option>
+                                    <option value="diy">DIY</option>
+                                    <option value="culture">Culture</option>
+                                </select>
                             </div>
 
                             <div>

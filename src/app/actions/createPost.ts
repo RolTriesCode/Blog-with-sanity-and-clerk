@@ -40,6 +40,7 @@ export async function createPost(formData: FormData) {
 
     const title = formData.get("title") as string;
     const bodyText = formData.get("body") as string;
+    const category = formData.get("category") as string;
     const imageFile = formData.get("image") as File;
     const slug = title.toLowerCase().replace(/ /g, "-");
 
@@ -58,6 +59,7 @@ export async function createPost(formData: FormData) {
     const post = await writeClient.create({
         _type: "post",
         title: title,
+        category: category,
         slug: { _type: "slug", current: slug },
         author: {
             _type: "reference",

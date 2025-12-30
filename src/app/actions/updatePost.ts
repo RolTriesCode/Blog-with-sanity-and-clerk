@@ -35,11 +35,13 @@ export async function updatePost(postId: string, formData: FormData) {
 
     const title = formData.get("title") as string;
     const bodyText = formData.get("body") as string;
+    const category = formData.get("category") as string;
     const imageFile = formData.get("image") as File;
     const slug = title.toLowerCase().replace(/ /g, "-");
 
     let patchData: any = {
         title: title,
+        category: category,
         slug: { _type: "slug", current: slug },
         body: [
             {
