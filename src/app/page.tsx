@@ -28,17 +28,22 @@ const urlFor = (source: SanityImageSource) =>
 const options = { next: { revalidate: 30 } };
 
 import SearchInput from "@/components/SearchInput";
+import CategoryFilter from "@/components/CategoryFilter";
 
 export default async function IndexPage({
   searchParams,
 }: {
-  searchParams: Promise<{ query?: string }>;
+  searchParams: Promise<{ query?: string; categories?: string }>;
 }) {
-  const { query: searchTerm } = await searchParams;
+  const { query: searchTerm, categories: selectedCats } = await searchParams;
+
+  const categoryFilter = selectedCats
+    ? ` && category in ${JSON.stringify(selectedCats.split(","))}`
+    : "";
 
   const searchQuery = searchTerm
-    ? `*[_type == "post" && defined(slug.current) && (title match $searchTerm || body[].children[].text match $searchTerm)] | order(publishedAt desc)`
-    : `*[_type == "post" && defined(slug.current)] | order(publishedAt desc)`;
+    ? `*[_type == "post" && defined(slug.current)${categoryFilter} && (title match $searchTerm || body[].children[].text match $searchTerm)] | order(publishedAt desc)`
+    : `*[_type == "post" && defined(slug.current)${categoryFilter}] | order(publishedAt desc)`;
 
   const queryDetails = `{
     _id,
@@ -79,13 +84,15 @@ export default async function IndexPage({
       </SignedOut>
 
       <SignedIn>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
           <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white">
             {searchTerm ? `Results for "${searchTerm}"` : "All Posts"}
           </h1>
 
           <SearchInput defaultValue={searchTerm} />
         </div>
+
+        <CategoryFilter />
 
         {posts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
