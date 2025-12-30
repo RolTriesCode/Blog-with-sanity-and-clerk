@@ -50,6 +50,12 @@ export default function RootLayout({
             <SignedIn>
               <div className="flex items-center gap-6">
                 <Link
+                  href="/my-posts"
+                  className="text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors duration-200"
+                >
+                  My Posts
+                </Link>
+                <Link
                   href="/create-post"
                   className="text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors duration-200"
                 >
