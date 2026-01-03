@@ -8,18 +8,9 @@ const CATEGORIES = [
     { title: 'Lifestyle', value: 'lifestyle' },
     { title: 'Education', value: 'education' },
     { title: 'News', value: 'news' },
-    { title: 'Health', value: 'health' },
-    { title: 'Travel', value: 'travel' },
-    { title: 'Food', value: 'food' },
-    { title: 'Finance', value: 'finance' },
     { title: 'Entertainment', value: 'entertainment' },
-    { title: 'Sports', value: 'sports' },
-    { title: 'Science', value: 'science' },
-    { title: 'Art', value: 'art' },
-    { title: 'Opinion', value: 'opinion' },
-    { title: 'DIY', value: 'diy' },
-    { title: 'Culture', value: 'culture' },
 ];
+
 
 export default function CategoryFilter() {
     const router = useRouter();
