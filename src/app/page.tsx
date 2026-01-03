@@ -1,8 +1,18 @@
-import Link from "next/link";
-import { type SanityDocument } from "next-sanity";
 import { client } from "@/sanity/client";
-import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { createImageUrlBuilder, type SanityImageSource } from "@sanity/image-url";
+import { type SanityDocument } from "next-sanity";
+import Hero from "@/components/images/herosectionimg.jpg"
+import Image from "next/image"
+import Link from "next/link";
+import AboutImg from "@/components/images/aboutBlogify.png"
+import Tech from "@/components/images/tech.png"
+import Lifestyle from "@/components/images/health.png"
+import Study from "@/components/images/study.png"
+import News from "@/components/images/news.png"
+import Entertainment from "@/components/images/entertainment.png"
+import Screenshot from "@/components/images/screenshot.png"
+import { ArrowUpRight } from "lucide-react";
 
 const query = `*[_type == "post" && defined(slug.current)] | order(publishedAt desc) {
   _id,
@@ -19,33 +29,31 @@ const query = `*[_type == "post" && defined(slug.current)] | order(publishedAt d
 
 const { projectId, dataset } = client.config();
 const urlFor = (source: SanityImageSource) =>
-  projectId && dataset
-    ? createImageUrlBuilder({ projectId, dataset }).image(source)
-    : null;
+    projectId && dataset
+        ? createImageUrlBuilder({ projectId, dataset }).image(source)
+        : null;
 
 
 
 const options = { next: { revalidate: 30 } };
 
-import SearchInput from "@/components/SearchInput";
-import CategoryFilter from "@/components/CategoryFilter";
 
 export default async function IndexPage({
-  searchParams,
+    searchParams,
 }: {
-  searchParams: Promise<{ query?: string; categories?: string }>;
+    searchParams: Promise<{ query?: string; categories?: string }>;
 }) {
-  const { query: searchTerm, categories: selectedCats } = await searchParams;
+    const { query: searchTerm, categories: selectedCats } = await searchParams;
 
-  const categoryFilter = selectedCats
-    ? ` && category in ${JSON.stringify(selectedCats.split(","))}`
-    : "";
+    const categoryFilter = selectedCats
+        ? ` && category in ${JSON.stringify(selectedCats.split(","))}`
+        : "";
 
-  const searchQuery = searchTerm
-    ? `*[_type == "post" && defined(slug.current)${categoryFilter} && (title match $searchTerm || body[].children[].text match $searchTerm)] | order(publishedAt desc)`
-    : `*[_type == "post" && defined(slug.current)${categoryFilter}] | order(publishedAt desc)`;
+    const searchQuery = searchTerm
+        ? `*[_type == "post" && defined(slug.current)${categoryFilter} && (title match $searchTerm || body[].children[].text match $searchTerm)] | order(publishedAt desc)`
+        : `*[_type == "post" && defined(slug.current)${categoryFilter}] | order(publishedAt desc)`;
 
-  const queryDetails = `{
+    const queryDetails = `{
     _id,
     title,
     category,
@@ -59,117 +67,263 @@ export default async function IndexPage({
     }
   }`;
 
-  const posts = await client.fetch<SanityDocument[]>(
-    searchQuery + queryDetails,
-    searchTerm ? { searchTerm: `*${searchTerm}*` } : {},
-    options
-  );
+    const posts = await client.fetch<SanityDocument[]>(
+        searchQuery + queryDetails,
+        searchTerm ? { searchTerm: `*${searchTerm}*` } : {},
+        options
+    );
 
-  return (
-    <main className="container mx-auto min-h-screen max-w-4xl p-8">
-      <SignedOut>
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <h1 className="text-5xl font-extrabold mb-6 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            Welcome to Our Blog
-          </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-400 mb-8 max-w-md">
-            Join our community to read and share amazing stories.
-          </p>
-          <SignInButton>
-            <button className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-full font-bold text-lg h-14 px-10 cursor-pointer shadow-lg hover:shadow-indigo-500/30 transition-all transform hover:-translate-y-1">
-              Start Reading
-            </button>
-          </SignInButton>
-        </div>
-      </SignedOut>
+    return (
+        <main className="mx-auto max-w-7xl ">
+            {/* Hero Section */}
+            <section className="flex items-center justify-center w-[95%] mx-auto relative flex-col">
+                <div className="relative w-full mx-auto">
+                    <div className="relative">
+                        <Image
+                            src={Hero}
+                            alt="Hero Image"
+                            className="rounded-[22px] lg:h-[80vh] 2xl:h-[60vh] object-cover"
+                        />
 
-      <SignedIn>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
-          <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white">
-            {searchTerm ? `Results for "${searchTerm}"` : "All Posts"}
-          </h1>
-
-          <SearchInput defaultValue={searchTerm} />
-        </div>
-
-        <CategoryFilter />
-
-        {posts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {posts.map((post) => (
-              <Link
-                href={`/${post.slug.current}`}
-                key={post._id}
-                className="group flex flex-col bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 hover:shadow-2xl hover:border-indigo-500/50 transition-all duration-300"
-              >
-                <div className="relative aspect-video overflow-hidden">
-                  {post.image ? (
-                    <img
-                      src={urlFor(post.image)?.width(600).height(400).url() || ""}
-                      alt={post.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                      <svg className="w-12 h-12 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
+                        {/* Left dark overlay */}
+                        <div className="absolute inset-0 rounded-[22px] bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
                     </div>
-                  )}
+                    <div className="md:absolute inset-0 flex items-center md:text-white">
+                        <div className="flex flex-col items-start px-3 lg:px-20 max-w-4xl mt-8 md:mt-0">
+                            <p className="text-[34px] lg:text-[64px] font-semibold leading-tight">
+                                Creative <span className="bg-[#616161] px-6 py-1 rounded-[10px]">stories</span>
+                            </p>
+
+                            <p className="text-[15px] mt-4 max-w-lg">
+                                Your go-to blog for technology, lifestyle, education, travel, and more—now enhanced with AI-generated insights.
+                            </p>
+
+                            <Link href="/posts" className="mt-6 px-4 py-2 md:px-6 md:py-2.5 rounded-full bg-black lg:bg-white text-white lg:text-black text-[14px] md:text-[15px] font-medium">
+                                Explore Blogs
+                            </Link>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div className="hidden relative bottom-10 bg-white w-[90%] h-20 md:flex items-center justify-center rounded-[12px] shadow-sm">
+                    <h1 className="text-4xl font-bold text-center text-[14px]">Welcome to My Blog</h1>
+                </div>
+            </section>
+
+
+
+            {/* Latest Posts Section */}
+            <section className="w-[95%] lg:w-[90%] mx-auto px-3 lg:px-7 mt-20">
+                <div>
+                    <h1 className="text-[26px] lg:text-[36px] font-medium">
+                        Latest Posts
+                    </h1>
+                    <div className="mt-6 gap-y-10 flex flex-row flex-wrap items-center justify-evenly lg:justify-between">
+                        {posts.slice(0, 4).map((post) => (
+                            <div key={post._id} className="w-fit">
+                                <div className="h-[252.19px] w-[252.19px] aspect-square rounded-[12px] overflow-hidden group cursor-pointer">
+                                    <Link href={`/${post.slug.current}`}>
+                                        {post.image ? (
+                                            <Image
+                                                src={urlFor(post.image)?.url() || Hero}
+                                                alt={post.title}
+                                                width={252}
+                                                height={252}
+                                                className="border object-cover h-full w-full group-hover:scale-105 transition-all duration-300"
+                                            />
+                                        ) : (
+                                            <Image src={Hero} alt="Default placeholder" className="border object-cover h-full w-full group-hover:scale-105 transition-all duration-300" />
+                                        )}
+                                    </Link>
+                                </div>
+                                <p className="mt-2 text-[14px] md:text-[15px] font-medium">{post.title}</p>
+                                <Link href={`/${post.slug.current}`} className="text-[14px] md:text-[15px] text-[#454545] flex items-center gap-1 group underline">
+                                    Read More
+                                    <ArrowUpRight size={14} className="group-hover:rotate-45 transition-all ease-in-out duration-300" />
+                                </Link>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+            <SignedOut>
+
+
+
+                {/* About Section */}
+                <section className="flex items-center justify-center mt-30 w-[95%] bg-white rounded-[22px] mx-auto relative flex-row flex-wrap py-15 px-10 md:p-15">
+                    <div className="lg:w-[43%] lg:h-[422px] mb-20 lg:mb-0">
+                        <p className="lg:text-[15px] text-[14px] font-medium mb-2">
+                            About Blogify
+                        </p>
+                        <p className="text-[34px] md:text-[48px] font-medium leading-[1.2]">
+                            Epic Headlines, <br />Always Fresh, <br />Always Here
+                        </p>
+                        <p className="text-[14px] md:text-[15px] mt-2 mb-10 lg:pr-20">
+                            We bring you the latest insights, tips, and trends across technology, education, fitness, news, and entertainment.
+                        </p>
+                        <Link href="/posts" className="md:px-6 md:py-2.5 px-4 py-2 rounded-full bg-black text-white text-[14px] md:text-[15px] font-medium">
+                            Explore Blogs
+                        </Link>
+                    </div>
+
+                    <div className="flex md:flex-row justify-center lg:w-[57%] flex-wrap md:flex-nowrap">
+                        <Image src={AboutImg} alt="" className="w-[264px] h-[422px] object-cover rounded-[8px] mb-4 md:mb-0" />
+                        <div>
+                            <p className="lg:text-[15px] text-[14px] md:pl-10 w-fit">
+                                From tech breakthroughs to fitness tips, and from education guides to the latest in news and entertainment, we cover it all. Our mission is to make learning, staying informed, and having fun simple and enjoyable for everyone.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+            </SignedOut>
+            {/* Category Section */}
+            <section className="flex w-[90%] mx-auto  px-3 lg:px-7 flex-wrap-reverse my-30">
+                <div className="flex flex-row flex-wrap items-center justify-evenly lg:w-[70%] mx-auto gap-4">
+
+                    <div className="w-fit">
+                        <div className="group overflow-hidden w-[130px] aspect-square rounded-[8px]">
+                            <Link href="/posts?categories=tech">
+                                <Image src={Tech} alt="" className="group-hover:scale-105 transition-all duration-300 ease-in-out" />
+                            </Link>
+                        </div>
+                        <p className="text-[14px] md:text-[15px] font-medium mt-1">Technology</p>
+                    </div>
+
+                    <div className="w-fit">
+                        <div className="group overflow-hidden w-[130px] aspect-square rounded-[8px]">
+                            <Link href="/posts?categories=lifestyle">
+                                <Image src={Lifestyle} alt="" className="group-hover:scale-105 transition-all duration-300 ease-in-out" />
+                            </Link>
+                        </div>
+                        <p className="text-[14px] md:text-[15px] font-medium mt-1">Lifestyle</p>
+                    </div>
+
+                    <div className="w-fit">
+                        <div className="group overflow-hidden w-[130px] aspect-square rounded-[8px]">
+                            <Link href="/posts?categories=entertainment">
+                                <Image src={Entertainment} alt="" className="group-hover:scale-105 transition-all duration-300 ease-in-out" />
+                            </Link>
+                        </div>
+                        <p className="text-[14px] md:text-[15px] font-medium mt-1">Entertainment</p>
+                    </div>
+
+                    <div className="w-fit">
+                        <div className="group overflow-hidden w-[130px] aspect-square rounded-[8px]">
+                            <Link href="/posts?categories=education">
+                                <Image src={Study} alt="" className="group-hover:scale-105 transition-all duration-300 ease-in-out" />
+                            </Link>
+                        </div>
+                        <p className="text-[14px] md:text-[15px] font-medium mt-1">Education</p>
+                    </div>
+
+                    <div className="w-fit">
+                        <div className="group overflow-hidden w-[130px] aspect-square rounded-[8px]">
+                            <Link href="/posts?categories=news">
+                                <Image src={News} alt="" className="group-hover:scale-105 transition-all duration-300 ease-in-out" />
+                            </Link>
+                        </div>
+                        <p className="text-[14px] md:text-[15px] font-medium mt-1">News</p>
+                    </div>
+
+
                 </div>
 
-                <div className="p-6 flex flex-col flex-grow">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 capitalize">
-                      {post.category || "Uncategorized"}
-                    </span>
-                    <p className="text-xs text-gray-500">{new Date(post.publishedAt).toLocaleDateString()}</p>
-                  </div>
-
-                  <div className="flex items-center gap-3 mb-4">
-                    {post.author?.profileImage ? (
-                      <img
-                        src={post.author.profileImage}
-                        alt={post.author.name}
-                        className="w-8 h-8 rounded-full border border-gray-100 dark:border-gray-700"
-                      />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xs">
-                        {post.author?.name?.charAt(0) || "U"}
-                      </div>
-                    )}
-                    <div className="text-xs">
-                      <p className="font-semibold text-gray-900 dark:text-gray-100">{post.author?.name || "Unknown Author"}</p>
-                    </div>
-                  </div>
-
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 transition-colors line-clamp-2">
-                    {post.title}
-                  </h2>
+                <div className="lg:w-[30%] mx-auto lg:pl-8 mb-8 lg:mb-0">
+                    <p className="lg:text-[15px] text-[14px] font-medium mb-2">
+                        Categories
+                    </p>
+                    <h1 className="md:text-[36px] text-[26px] font-medium leading-[1.2]">
+                        United Readers,<br />Limitless Stories
+                    </h1>
                 </div>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-20 bg-gray-50 dark:bg-gray-900/50 rounded-3xl border border-dashed border-gray-200 dark:border-gray-800">
-            <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+            </section>
+
+            <div className="relative">
+                <SignedOut>
+                    <section className="relative z-10 -mb-20">
+                        <div className="bg-black text-white rounded-[22px] w-[80%] mx-auto flex flex-row items-center justify-center">
+                            <div className="p-5 lg:px-15 gap-10 flex flex-col">
+                                <h1 className="md:text-[36px] text-[26px] font-medium leading-[1.2] lg:w-[85%]">
+                                    What Do You Want to Read Today? Sign In to Create and Read Posts
+                                </h1>
+                                <Link
+                                    href="/sign-in"
+                                    className="md:px-6 md:py-2.5 px-4 py-2 rounded-full bg-white text-black text-[14px] md:text-[15px] font-medium w-fit"
+                                >
+                                    Get Started
+                                </Link>
+                            </div>
+
+                            <div className="h-fit hidden md:block">
+                                <Image
+                                    src={Screenshot}
+                                    alt=""
+                                    className="border h-[291px] object-cover rounded-tl-[99px] rounded-r-[22px]"
+                                />
+                            </div>
+                        </div>
+                    </section>
+                </SignedOut>
+
+                <footer className="w-full bg-white border-t-2 border-black h-[342px]">
+                    <div className=" pt-30 px-10 lg:px-32 flex flex-row justify-between">
+                        <div>
+                            <h1 className="md:text-[36px] text-[26px] font-medium leading-[1.2]">
+                                Blogify
+                            </h1>
+                            <p className="text-[14px] md:text-[15px] font-medium mt-1">
+                                Create, Read, and Share <br /> Stories with the World
+                            </p>
+                        </div>
+                        <div className="flex flex-row lg:gap-20">
+                            <div>
+                                <p className="text-[14px] md:text-[15px] font-medium">
+                                    Categories
+                                </p>
+                                <ul className="gap-1 flex flex-col text-[#454545]">
+                                    <li className="text-[13px] md:text-[14px]">
+                                        <Link href="/posts?categories=tech">Technology</Link>
+                                    </li>
+                                    <li className="text-[13px] md:text-[14px]">
+                                        <Link href="/posts?categories=lifestyle">Lifestyle</Link>
+                                    </li>
+                                    <li className="text-[13px] md:text-[14px]">
+                                        <Link href="/posts?categories=entertainment">Entertainment</Link>
+                                    </li>
+                                    <li className="text-[13px] md:text-[14px]">
+                                        <Link href="/posts?categories=education">Education</Link>
+                                    </li>
+                                    <li className="text-[13px] md:text-[14px]">
+                                        <Link href="/posts?categories=news">News</Link>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div>
+                                <p className="text-[14px] md:text-[15px] font-medium">
+                                    Resources
+                                </p>
+                                <ul className="gap-1 flex flex-col text-[#454545]">
+                                    <li className="text-[13px] md:text-[14px]">
+                                        <Link href="/posts">Posts</Link>
+                                    </li>
+                                    <li className="text-[13px] md:text-[14px]">
+                                        <Link href="/">About</Link>
+                                    </li>
+
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="absolute bottom-0 left-0 w-full p-1 bg-black text-white flex items-center justify-center">
+                        <p className="text-[12px] md:text-[14px] text-white">© {new Date().getFullYear()} Errol Tabangen, All rights reserved.</p>
+                    </div>
+                </footer>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No posts found</h3>
-            <p className="text-gray-500 dark:text-gray-400">
-              We couldn't find any posts matching "{searchTerm}".
-            </p>
-            <Link
-              href="/"
-              className="mt-6 inline-block text-indigo-600 font-semibold hover:underline"
-            >
-              Clear search
-            </Link>
-          </div>
-        )}
-      </SignedIn>
-    </main>
-  );
+
+        </main>
+    );
 }

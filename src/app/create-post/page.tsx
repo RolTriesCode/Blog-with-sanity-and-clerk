@@ -1,12 +1,40 @@
+"use client";
+
 import { createPost } from "@/app/actions/createPost";
-import { redirect } from "next/navigation";
+import { generateAIContent } from "@/app/actions/generateAIContent";
+import { useRouter } from "next/navigation";
 import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/nextjs";
+import { useState } from "react";
+import { Sparkles, Loader2 } from "lucide-react";
 
 export default function CreatePostPage() {
+    const [title, setTitle] = useState("");
+    const [category, setCategory] = useState("");
+    const [body, setBody] = useState("");
+    const [isGenerating, setIsGenerating] = useState(false);
+    const router = useRouter();
+
+    async function handleGenerateAI() {
+        if (!category) {
+            alert("Please select a category first.");
+            return;
+        }
+
+        setIsGenerating(true);
+        try {
+            const content = await generateAIContent(category, title);
+            setBody(content);
+        } catch (error) {
+            console.error(error);
+            alert("Failed to generate content. Please try again.");
+        } finally {
+            setIsGenerating(false);
+        }
+    }
+
     async function handleSubmit(formData: FormData) {
-        "use server";
         const post = await createPost(formData);
-        redirect(`/${post.slug.current}`);
+        router.push(`/${post.slug.current}`);
     }
 
     return (
@@ -34,6 +62,8 @@ export default function CreatePostPage() {
                                     name="title"
                                     id="title"
                                     required
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
                                     placeholder="Enter a catchy title..."
                                     className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200 outline-none"
                                 />
@@ -50,10 +80,11 @@ export default function CreatePostPage() {
                                     name="category"
                                     id="category"
                                     required
-
+                                    value={category}
+                                    onChange={(e) => setCategory(e.target.value)}
                                     className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200 outline-none cursor-pointer appearance-none"
                                 >
-                                    <option defaultValue={""} disabled selected>Select a category</option>
+                                    <option value="" disabled>Select a category</option>
                                     <option value="tech">Technology</option>
                                     <option value="lifestyle">Lifestyle</option>
                                     <option value="education">Education</option>
@@ -119,17 +150,39 @@ export default function CreatePostPage() {
                             </div>
 
                             <div>
-                                <label
-                                    htmlFor="body"
-                                    className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
-                                >
-                                    Content
-                                </label>
+                                <div className="flex justify-between items-center mb-2">
+                                    <label
+                                        htmlFor="body"
+                                        className="block text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                    >
+                                        Content
+                                    </label>
+                                    <button
+                                        type="button"
+                                        onClick={handleGenerateAI}
+                                        disabled={isGenerating || !category}
+                                        className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {isGenerating ? (
+                                            <>
+                                                <Loader2 className="w-3 h-3 animate-spin" />
+                                                Generating...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Sparkles className="w-3 h-3" />
+                                                Generate with AI
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
                                 <textarea
                                     name="body"
                                     id="body"
                                     rows={8}
                                     required
+                                    value={body}
+                                    onChange={(e) => setBody(e.target.value)}
                                     placeholder="Write your story here..."
                                     className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200 outline-none resize-none"
                                 />
@@ -153,3 +206,4 @@ export default function CreatePostPage() {
         </div>
     );
 }
+
