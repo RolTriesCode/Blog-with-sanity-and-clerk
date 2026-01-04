@@ -52,7 +52,7 @@ export default function CategoryFilter() {
                     });
                 }}
                 disabled={isPending}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${selectedCategories.length === 0
+                className={`px-4 py-2 rounded-full text-sm md:text-base font-medium transition-all duration-200 border ${selectedCategories.length === 0
                     ? "bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-200"
                     : "bg-white border-gray-200 text-gray-600 hover:border-indigo-400 hover:text-indigo-600"
                     }`}
