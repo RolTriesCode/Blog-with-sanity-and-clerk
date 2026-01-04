@@ -30,8 +30,8 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en">
-        <body className={`${poppins.variable} antialiased`}>
+      <html lang="en" suppressHydrationWarning>
+        <body className={`${poppins.variable} antialiased`} suppressHydrationWarning>
           <Header />
           {children}
         </body>
