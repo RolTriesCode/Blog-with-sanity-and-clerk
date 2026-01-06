@@ -1,21 +1,20 @@
 "use client"
-import { cn } from "@/lib/utils";
-import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
-import Link from "next/link";
+import Logo from "@/components/images/logo.png";
 import { ProtectedLink } from "@/components/ProtectedLink";
 import {
     NavigationMenu,
     NavigationMenuContent,
-    NavigationMenuIndicator,
     NavigationMenuItem,
     NavigationMenuLink,
     NavigationMenuList,
     NavigationMenuTrigger,
-    navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu"
-import { Sparkles, FileText, Tags, Home, LayoutDashboard } from "lucide-react";
-import Logo from "@/components/images/logo.png"
+    navigationMenuTriggerStyle
+} from "@/components/ui/navigation-menu";
+import { cn } from "@/lib/utils";
+import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { LayoutDashboard, Sparkles } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 const CATEGORIES = [
     { title: 'Technology', value: 'tech' },
     { title: 'Lifestyle', value: 'lifestyle' },
@@ -24,14 +23,6 @@ const CATEGORIES = [
     { title: 'Entertainment', value: 'entertainment' },
 
 ];
-
-const DotIcon = () => {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor">
-            <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512z" />
-        </svg>
-    )
-}
 
 
 function Header() {
